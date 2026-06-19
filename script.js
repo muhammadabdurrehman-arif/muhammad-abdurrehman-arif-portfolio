@@ -1,66 +1,36 @@
 // ============================================================
-//                    MOBILE MENU TOGGLE
+//              HEADER SCROLL EFFECT
 // ============================================================
 
-const menuIcon = document.getElementById('menu-icon');
-const nav = document.querySelector('nav');
-const navLinks = document.querySelectorAll('nav a');
-
-// Toggle mobile menu
-menuIcon.addEventListener('click', () => {
-    nav.classList.toggle('active');
-    menuIcon.classList.toggle('active');
-});
-
-// Close menu when link is clicked
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        nav.classList.remove('active');
-        menuIcon.classList.remove('active');
-    });
-});
-
-// Close menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('header')) {
-        nav.classList.remove('active');
-        menuIcon.classList.remove('active');
-    }
-});
-
-// ============================================================
-//                ACTIVE LINK HIGHLIGHTING
-// ============================================================
-
-const header = document.querySelector('header');
+const navbar = document.querySelector('.navbar-header');
 
 window.addEventListener('scroll', () => {
-    // Add active class to header on scroll
     if (window.scrollY > 100) {
-        header.classList.add('active');
+        navbar?.classList.add('scrolled');
     } else {
-        header.classList.remove('active');
+        navbar?.classList.remove('scrolled');
     }
 
-    // Update active navigation link
-    updateActiveLink();
+    updateActiveNavLink();
 });
 
-function updateActiveLink() {
+// ============================================================
+//          UPDATE ACTIVE NAVIGATION LINK
+// ============================================================
+
+function updateActiveNavLink() {
     const sections = document.querySelectorAll('section');
-    const navLinks = document.querySelectorAll('nav a');
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
 
     sections.forEach(section => {
-        const sectionTop = section.offsetTop - 200;
+        const sectionTop = section.offsetTop - 100;
         const sectionHeight = section.offsetHeight;
         const scrollPosition = window.scrollY;
 
         if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-            });
-
-            const activeLink = document.querySelector(`nav a[href="#${section.id}"]`);
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            const activeLink = document.querySelector(`.navbar-nav a[href="#${section.id}"]`);
             if (activeLink) {
                 activeLink.classList.add('active');
             }
@@ -69,66 +39,72 @@ function updateActiveLink() {
 }
 
 // ============================================================
-//            DYNAMIC HEADLINE TEXT ROTATION
+//        FIXED: DYNAMIC HEADLINE (NO TEXT OVERLAP)
 // ============================================================
 
-const dynamicHeadline = document.querySelector('.dynamic-headline');
-const headlineSpans = document.querySelectorAll('.dynamic-headline span');
+const headlineText = document.querySelector('.headline-text');
+const headlines = [
+    'Software Engineer',
+    'Python Developer',
+    'Game Developer',
+    'ML Enthusiast'
+];
 
-// Optional: Add periodic text update animation
-let currentIndex = 0;
+let currentHeadlineIndex = 0;
 
-function rotateHeadlines() {
-    headlineSpans.forEach((span, index) => {
-        span.style.opacity = index === currentIndex ? '1' : '0';
-        span.style.visibility = index === currentIndex ? 'visible' : 'hidden';
-    });
+function rotateHeadline() {
+    if (!headlineText) return;
 
-    currentIndex = (currentIndex + 1) % headlineSpans.length;
+    // Change the text content
+    headlineText.textContent = headlines[currentHeadlineIndex];
+    
+    // Move to next headline
+    currentHeadlineIndex = (currentHeadlineIndex + 1) % headlines.length;
 }
 
-// Rotate every 3 seconds
-setInterval(rotateHeadlines, 3000);
+// Rotate headline every 3 seconds
+if (headlineText) {
+    setInterval(rotateHeadline, 3000);
+}
 
 // ============================================================
-//              RESUME TAB SWITCHING
+//            RESUME TAB SWITCHING
 // ============================================================
 
-const resumeButtons = document.querySelectorAll('.resume-btn');
-const resumeDetails = document.querySelectorAll('.resume-detail');
+const resumeBtns = document.querySelectorAll('.resume-btn');
+const resumeContents = document.querySelectorAll('.resume-content');
 
-resumeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        // Remove active class from all buttons and details
-        resumeButtons.forEach(btn => btn.classList.remove('active'));
-        resumeDetails.forEach(detail => detail.classList.remove('active'));
+resumeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Remove active class from all buttons and contents
+        resumeBtns.forEach(b => b.classList.remove('active'));
+        resumeContents.forEach(c => c.classList.remove('active'));
 
         // Add active class to clicked button
-        button.classList.add('active');
+        btn.classList.add('active');
 
-        // Add active class to corresponding detail
-        const tabName = button.getAttribute('data-tab');
-        const activeDetail = document.getElementById(`${tabName}-detail`);
-        if (activeDetail) {
-            activeDetail.classList.add('active');
+        // Add active class to corresponding content
+        const tabName = btn.getAttribute('data-tab');
+        const activeContent = document.getElementById(`${tabName}-detail`);
+        if (activeContent) {
+            activeContent.classList.add('active');
         }
     });
 });
 
-// Initialize with first tab active
-if (resumeButtons.length > 0) {
-    resumeButtons[0].click();
+// Initialize first tab as active
+if (resumeBtns.length > 0) {
+    resumeBtns[0].click();
 }
 
 // ============================================================
-//              SMOOTH SCROLL TO ANCHOR
+//          SMOOTH SCROLL TO ANCHOR
 // ============================================================
 
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         const href = this.getAttribute('href');
         
-        // Skip if it's just "#"
         if (href === '#') {
             e.preventDefault();
             return;
@@ -137,6 +113,15 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         const target = document.querySelector(href);
         if (target) {
             e.preventDefault();
+            
+            // Close mobile menu if open
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+            if (navbarCollapse?.classList.contains('show')) {
+                const toggler = document.querySelector('.navbar-toggler');
+                toggler?.click();
+            }
+
+            // Scroll to target
             target.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
@@ -146,97 +131,101 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 // ============================================================
-//              CONTACT FORM SUBMISSION
+//            CONTACT FORM SUBMISSION
 // ============================================================
 
-const contactForm = document.querySelector('form');
+const contactForm = document.querySelector('.contact-form');
 
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
         // Get form data
-        const name = contactForm.querySelector('input[name="name"]').value.trim();
-        const email = contactForm.querySelector('input[name="email"]').value.trim();
-        const phone = contactForm.querySelector('input[name="phone"]').value.trim();
-        const subject = contactForm.querySelector('input[name="subject"]').value.trim();
-        const message = contactForm.querySelector('textarea[name="message"]').value.trim();
+        const formData = {
+            name: contactForm.querySelector('input[name="name"]').value.trim(),
+            email: contactForm.querySelector('input[name="email"]').value.trim(),
+            phone: contactForm.querySelector('input[name="phone"]').value.trim(),
+            subject: contactForm.querySelector('input[name="subject"]').value.trim(),
+            message: contactForm.querySelector('textarea[name="message"]').value.trim()
+        };
 
         // Validation
-        if (!name || !email || !subject || !message) {
+        if (!formData.name || !formData.email || !formData.subject || !formData.message) {
             showNotification('Please fill in all required fields', 'error');
             return;
         }
 
-        // Email validation
-        if (!isValidEmail(email)) {
+        if (!isValidEmail(formData.email)) {
             showNotification('Please enter a valid email address', 'error');
             return;
         }
 
-        // Simulate form submission
-        const submitButton = contactForm.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
-        submitButton.textContent = 'Sending...';
-        submitButton.disabled = true;
-
-        // Simulate API call
-        setTimeout(() => {
-            // Reset form
-            contactForm.reset();
-            submitButton.textContent = originalText;
-            submitButton.disabled = false;
-
-            showNotification(
-                'Message sent successfully! I\'ll get back to you soon.',
-                'success'
-            );
-
-            // Optional: Send via email service
-            sendFormViaEmail(name, email, phone, subject, message);
-        }, 1500);
+        // Submit form
+        submitContactForm(formData);
     });
 }
 
-// Email validation helper
+/**
+ * Email validation helper
+ */
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 }
 
-// Send form via email service (integrate with your backend)
-function sendFormViaEmail(name, email, phone, subject, message) {
-    // Replace with your actual email service endpoint
-    // Example using EmailJS or your backend API
+/**
+ * Submit contact form
+ */
+function submitContactForm(formData) {
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
     
-    const formData = {
-        to: 'abdurrehman.arif.dev@gmail.com',
-        from: email,
-        name: name,
-        phone: phone,
-        subject: subject,
-        message: message,
-        timestamp: new Date().toISOString()
-    };
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
 
-    // Uncomment to enable actual email sending
+    // Simulate submission (replace with actual API call)
+    setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+
+        // Reset form
+        contactForm.reset();
+
+        // Show success message
+        showNotification(
+            'Message sent successfully! I\'ll get back to you soon.',
+            'success'
+        );
+
+        // Optional: Send via email service
+        console.log('Form submitted:', formData);
+        // sendViaEmailService(formData);
+    }, 1500);
+}
+
+/**
+ * Send form via email service (optional)
+ * Replace 'YOUR_EMAIL_SERVICE_URL' with your actual endpoint
+ */
+function sendViaEmailService(formData) {
     /*
-    fetch('YOUR_EMAIL_SERVICE_ENDPOINT', {
+    fetch('YOUR_EMAIL_SERVICE_URL', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData)
     })
+    .then(response => response.json())
     .catch(error => console.error('Email error:', error));
     */
-
-    console.log('Form data ready to send:', formData);
 }
 
-// Notification system
+// ============================================================
+//        NOTIFICATION SYSTEM
+// ============================================================
+
 function showNotification(message, type = 'info') {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
@@ -252,8 +241,9 @@ function showNotification(message, type = 'info') {
         fontSize: '0.95rem',
         zIndex: '10000',
         animation: 'slideInRight 0.3s ease',
-        maxWidth: '400px',
-        wordWrap: 'break-word'
+        maxWidth: '90vw',
+        wordWrap: 'break-word',
+        fontFamily: "var(--font-body)",
     });
 
     // Set type-specific styles
@@ -282,33 +272,6 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-// Add animation styles
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideOutRight {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
-
 // ============================================================
 //              SCROLL ANIMATIONS
 // ============================================================
@@ -328,8 +291,8 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Apply observer to service boxes and portfolio items
-document.querySelectorAll('.services-box, .portfolio-box, .resume-item').forEach(el => {
+// Apply observer to cards
+document.querySelectorAll('.cert-card, .project-card, .resume-item, .skill-item').forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(20px)';
     el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
@@ -337,13 +300,12 @@ document.querySelectorAll('.services-box, .portfolio-box, .resume-item').forEach
 });
 
 // ============================================================
-//              DOWNLOAD CV TRACKING
+//          CV DOWNLOAD TRACKING
 // ============================================================
 
 const downloadBtn = document.querySelector('a[download]');
 if (downloadBtn) {
-    downloadBtn.addEventListener('click', (e) => {
-        // Track download event
+    downloadBtn.addEventListener('click', () => {
         console.log('CV Download initiated at:', new Date().toISOString());
         
         // Optional: Send analytics event
@@ -357,86 +319,43 @@ if (downloadBtn) {
 }
 
 // ============================================================
-//              KEYBOARD NAVIGATION
+//        KEYBOARD NAVIGATION FOR RESUME TABS
 // ============================================================
 
-// Allow tab navigation between resume buttons
-resumeButtons.forEach((button, index) => {
-    button.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+resumeBtns.forEach((btn, index) => {
+    btn.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
             e.preventDefault();
-            const nextButton = resumeButtons[index + 1] || resumeButtons[0];
-            nextButton.focus();
-            nextButton.click();
-        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            const nextBtn = resumeBtns[(index + 1) % resumeBtns.length];
+            nextBtn.focus();
+            nextBtn.click();
+        } else if (e.key === 'ArrowUp') {
             e.preventDefault();
-            const prevButton = resumeButtons[index - 1] || resumeButtons[resumeButtons.length - 1];
-            prevButton.focus();
-            prevButton.click();
+            const prevBtn = resumeBtns[(index - 1 + resumeBtns.length) % resumeBtns.length];
+            prevBtn.focus();
+            prevBtn.click();
         }
     });
 });
 
 // ============================================================
-//              PAGE INITIALIZATION
+//          KEYBOARD NAVIGATION (ESC TO CLOSE MENU)
 // ============================================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Set initial active link
-    updateActiveLink();
-
-    // Initialize animated bars animation
-    const bars = document.querySelectorAll('.bar');
-    bars.forEach((bar, index) => {
-        bar.style.setProperty('--i', bars.length - index);
-    });
-
-    // Add loaded state
-    document.body.classList.add('loaded');
-
-    // Log initialization
-    console.log('Portfolio website loaded successfully');
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const navbarCollapse = document.querySelector('.navbar-collapse');
+        if (navbarCollapse?.classList.contains('show')) {
+            const toggler = document.querySelector('.navbar-toggler');
+            toggler?.click();
+        }
+    }
 });
 
 // ============================================================
-//              PERFORMANCE OPTIMIZATION
+//          ACCESSIBILITY: SKIP TO MAIN CONTENT
 // ============================================================
 
-// Debounce scroll events
-let scrollTimeout;
-window.addEventListener('scroll', () => {
-    if (scrollTimeout) {
-        window.cancelAnimationFrame(scrollTimeout);
-    }
-    scrollTimeout = window.requestAnimationFrame(() => {
-        updateActiveLink();
-    });
-}, { passive: true });
-
-// Lazy load images if needed
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    observer.unobserve(img);
-                }
-            }
-        });
-    });
-
-    document.querySelectorAll('img[data-src]').forEach(img => {
-        imageObserver.observe(img);
-    });
-}
-
-// ============================================================
-//              ACCESSIBILITY FEATURES
-// ============================================================
-
-// Skip to main content link
 const skipLink = document.createElement('a');
 skipLink.href = '#home';
 skipLink.textContent = 'Skip to main content';
@@ -446,9 +365,10 @@ Object.assign(skipLink.style, {
     left: '0',
     background: 'var(--accent-cyan)',
     color: 'var(--dark-bg)',
-    padding: '8px',
+    padding: '8px 16px',
     textDecoration: 'none',
-    zIndex: '100'
+    zIndex: '100',
+    borderRadius: '0 0 4px 0'
 });
 
 skipLink.addEventListener('focus', () => {
@@ -461,13 +381,97 @@ skipLink.addEventListener('blur', () => {
 
 document.body.prepend(skipLink);
 
-// Focus management for modals
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        // Close mobile menu on Escape
-        nav.classList.remove('active');
-        menuIcon.classList.remove('active');
+// ============================================================
+//            ANIMATION KEYFRAMES (INJECTED)
+// ============================================================
+
+const animationStyles = document.createElement('style');
+animationStyles.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
     }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(animationStyles);
+
+// ============================================================
+//            PAGE INITIALIZATION
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize
+    updateActiveNavLink();
+    rotateHeadline();
+
+    // Log successful initialization
+    console.log('✨ Portfolio loaded successfully with Bootstrap 5');
+    console.log('✅ Dynamic headline: NO TEXT OVERLAP');
+    console.log('✅ Responsive design: Bootstrap Grid System');
+    console.log('✅ Mobile support: Fully responsive');
 });
 
-console.log('✨ Portfolio JavaScript loaded - Interactive features enabled');
+// ============================================================
+//        PERFORMANCE: DEBOUNCED SCROLL EVENTS
+// ============================================================
+
+let scrollTimeout;
+window.addEventListener('scroll', () => {
+    if (scrollTimeout) {
+        window.cancelAnimationFrame(scrollTimeout);
+    }
+    scrollTimeout = window.requestAnimationFrame(() => {
+        updateActiveNavLink();
+    });
+}, { passive: true });
+
+// ============================================================
+//          LAZY LOAD IMAGES (OPTIONAL)
+// ============================================================
+
+if ('IntersectionObserver' in window) {
+    const imageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    imageObserver.unobserve(img);
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('img[data-src]').forEach(img => {
+        imageObserver.observe(img);
+    });
+}
+
+console.log('🚀 All JavaScript features initialized');
